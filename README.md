@@ -6,12 +6,13 @@ It supports only Android
 
 `$ npm install rn-samsung-erc20-wallet --save`
 
+then, you need to install samsung keystore sdk
+
 ### Mostly automatic installation
 
 `$ react-native link rn-samsung-erc20-wallet`
 
 ### Manual installation
-
 
 #### Android
 
@@ -30,6 +31,7 @@ It supports only Android
 #### iOS
 
 n/a
+
 
 
 ## Usage

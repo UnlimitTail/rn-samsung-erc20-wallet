@@ -1,7 +1,7 @@
 {
   "name": "rn-samsung-erc20-wallet",
   "title": "Rn Samsung Erc20 Wallet",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TODO",
   "main": "index.js",
   "scripts": {

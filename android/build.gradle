@@ -49,10 +49,18 @@ repositories {
         url "$projectDir/../node_modules/react-native/android"
     }
     mavenCentral()
+
+    flatDir{
+        dirs 'libs-samsung-sdk'
+    }
 }
 
 dependencies {
     implementation "com.facebook.react:react-native:${safeExtGet('reactnativeVersion', '+')}"
+
+    implementation 'com.samsung.android.sdk.coldwallet:KeystoreSDK_v1.1.0@aar'
+    implementation 'org.web3j:core:3.3.1-android'
+    implementation 'org.bitcoinj:bitcoinj-core:0.15.4'
 }
 
 def configureReactNativePom(def pom) {
