@@ -1,6 +1,6 @@
 # rn-samsung-erc20-wallet
 
-It supports only Android
+<b>## It supports only Android ##</b>
 
 ## Getting started
 
@@ -44,6 +44,57 @@ n/a
 ```javascript
 import SamsungErc20Wallet from 'rn-samsung-erc20-wallet';
 
-// TODO: What to do with the module?
-SamsungErc20Wallet;
+// initializing
+try {
+	await SW.init({
+		contractAddress: '0xA158241357872A52B3130E02C24B1359FE2F....',
+		chainnetUrl: 'https://mainnet.infura.io/v3/....',
+	})
+
+	console.log('success to initialize')
+}
+catch (e) {
+	console.error(e)
+}
+
+// checking update
+try {
+	const needUpdate = await SW.needToUpdate()
+	console.log('needUpdate', needUpdate)
+}
+catch (e) {
+	console.error(e)
+}
+
+// getting my erc20 wallet address
+try {
+	const addr = await SW.getAddress()
+	console.log('addr', addr)
+}
+catch (e) {
+	console.error(e)
+}
+
+// getting balance
+try {
+	const balance = await SW.getBalance()
+	console.log('balance', balance)
+}
+catch (e) {
+	console.error(e)
+}
+
+// trasfer
+try {
+	const param = {
+		toAddress: '0x007a4fad964225B94eA41f64Ca08a97248d64920',
+		amount: 10
+	}
+
+	const transaction = await SW.transfer(param)
+	console.log('transaction', transaction)
+}
+catch (e) {
+	console.error(e)
+}
 ```

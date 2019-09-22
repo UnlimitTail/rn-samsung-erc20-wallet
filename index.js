@@ -2,34 +2,30 @@ import { NativeModules, Platform } from 'react-native';
 
 const { SamsungErc20Wallet } = NativeModules;
 
-function exe(fn) {
-    return new Promise((resolve, reject) => {
-        if (Platform.OS !== 'android') {
-            return reject('It supports only android')
-        }
+async function exe(fn) {
+    if (Platform.OS !== 'android') throw new Error('It supports only android')
 
-        fn((err, response) => err ? reject(err) : resolve(response))
-    })
+    return fn()
 }
 
 const init = async function(params) {
-    return exe(callback => SamsungErc20Wallet.init(params, callback))
+    return exe(async () => SamsungErc20Wallet.init(params))
 }
 
 const needToUpdate = async function() {
-    return exe(callback => SamsungErc20Wallet.needToUpdate(callback))
+    return exe(async () => SamsungErc20Wallet.needToUpdate())
 }
 
 const getAddress = async function() {
-    return exe(callback => SamsungErc20Wallet.getAddress(callback))
+    return exe(async () => SamsungErc20Wallet.getAddress())
 }
 
 const getBalance = async function() {
-    return exe(callback => SamsungErc20Wallet.getBalance(callback))
+    return exe(async () => SamsungErc20Wallet.getBalance())
 }
 
 const transfer = async function(params) {
-    return exe(callback => SamsungErc20Wallet.transfer(params, callback))
+    return exe(async () => SamsungErc20Wallet.transfer(params, ))
 }
 
 export {

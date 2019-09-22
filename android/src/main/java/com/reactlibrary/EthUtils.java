@@ -1,5 +1,6 @@
 package com.reactlibrary;
 
+import android.util.JsonReader;
 import android.util.Log;
 
 import org.web3j.abi.FunctionEncoder;
@@ -14,10 +15,15 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
+
+import javax.net.ssl.HttpsURLConnection;
 
 final class EthUtils {
     private static String LOG_ID = "SamsungErc20WalletModule";
@@ -65,5 +71,33 @@ final class EthUtils {
                 fromAddress, DefaultBlockParameterName.PENDING).sendAsync().get();
 
         return ethGetTransactionCount.getTransactionCount();
+    }
+
+    public static Integer getGasPrice() throws Exception {
+        URL githubEndpoint = new URL("https://ethgasstation.info/json/ethgasAPI.json");
+
+        HttpsURLConnection myConnection =
+                (HttpsURLConnection) githubEndpoint.openConnection();
+
+        if (myConnection.getResponseCode() != 200) throw new Exception("Invalid response");
+
+        InputStream responseBody = myConnection.getInputStream();
+        InputStreamReader responseBodyReader =
+                new InputStreamReader(responseBody, "UTF-8");
+
+        JsonReader jsonReader = new JsonReader(responseBodyReader);
+
+        jsonReader.beginObject();
+
+        while (jsonReader.hasNext()) {
+            String key = jsonReader.nextName();
+            if (key.equals("fast")) {
+                return jsonReader.nextInt();
+            } else {
+                jsonReader.skipValue();
+            }
+        }
+
+        throw new Exception("No result");
     }
 }

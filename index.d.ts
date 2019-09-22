@@ -1,13 +1,11 @@
 export interface InitParam {
     contractAddress: string;
     chainnetUrl: string;
-    tokenDecimal: number;
 }
 
 export interface TransferParam {
     toAddress: string;
     amount: number;
-    gasLimit: number;
 }
 
 export function init(params: InitParam): Promise<void>;

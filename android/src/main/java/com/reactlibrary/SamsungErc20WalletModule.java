@@ -1,11 +1,12 @@
 package com.reactlibrary;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 
 import com.samsung.android.sdk.coldwallet.*;
@@ -16,12 +17,14 @@ import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Numeric;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.samsung.android.sdk.coldwallet.ScwErrorCode.ERROR_ILLEGAL_MSG;
-import static com.samsung.android.sdk.coldwallet.ScwErrorCode.ERROR_WALLET_RESET;
+import javax.net.ssl.HttpsURLConnection;
 
 /*
 public interface ScwErrorCode {
@@ -68,7 +71,6 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     private int[] mSupportedCoinTypes = null;
     private String mErc20Address = null;
     private String mContractAddress = null;
-    private Integer mTokenDecimal = null;
     private String mChainnetUrl = null;
     private Web3j mWeb3 = null;
 
@@ -85,28 +87,26 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void init(final ReadableMap params, final Callback callback) {
+    public void init(final ReadableMap params, final Promise promise) {
         if (mInitialized) {
-            callback.invoke(null);
+            promise.resolve(null);
             return;
         }
 
         ScwService scw = ScwService.getInstance();
         if (null == scw) {
-            callback.invoke("Samsung keystore not supported this device");
+            promise.reject("INVALID_DEVICE", "Samsung keystore not supported this device");
             return;
         }
 
         mContractAddress = params.getString("contractAddress");
         mChainnetUrl = params.getString("chainnetUrl");
-        mTokenDecimal = params.getInt("tokenDecimal");
 
         if (
                 null == mContractAddress ||
-                null == mChainnetUrl ||
-                null == mTokenDecimal
+                null == mChainnetUrl
         ) {
-            callback.invoke("Invalid parameters");
+            promise.reject("INVALID_PARAMETERS", "Invalid parameters");
             return;
         }
 
@@ -121,7 +121,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                 public void onSuccess(List<String> addressList) {
 
                     if (addressList.isEmpty()) {
-                        callback.invoke("Empty erc20 wallet");
+                        promise.reject("NO_WALLET", "Empty erc20 wallet");
                         return;
                     }
 
@@ -129,12 +129,12 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                     mErc20Address = addressList.get(0);
 
                     mInitialized = true;
-                    callback.invoke(null);
+                    promise.resolve(null);
                 }
 
                 @Override
                 public void onFailure(int errorCode) {
-                    callback.invoke("Failed to init : " + errorCode);
+                    promise.reject("FAILURE", "Failed to init : " + errorCode);
                 }
             };
 
@@ -148,56 +148,71 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void needToUpdate(final Callback callback) {
+    public void needToUpdate(final Promise promise) {
+        if (!mInitialized) {
+            promise.reject("NOT_INITIALIZED", "NOT_INITIALIZED");
+            return;
+        }
+        
         final int keystoreApiLevel = ScwService.getInstance().getKeystoreApiLevel();
         final boolean res =  keystoreApiLevel > 0;
-        callback.invoke(null, res);
+        promise.resolve(Boolean.valueOf(res));
     }
 
     @ReactMethod
-    public void getAddress(final Callback callback) {
+    public void getAddress(final Promise promise) {
         if (!mInitialized) {
-            callback.invoke("Not initialized");
+            promise.reject("NOT_INITIALIZED", "NOT_INITIALIZED");
             return;
         }
 
-        callback.invoke(null, mErc20Address);
+        promise.resolve(mErc20Address);
     }
 
     @ReactMethod
-    public void getBalance(final Callback callback) {
+    public void getBalance(final Promise promise) {
         if (!mInitialized) {
-            callback.invoke("Not initialized");
+            promise.reject("NOT_INITIALIZED", "NOT_INITIALIZED");
             return;
         }
 
-        callback.invoke(null);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL ep = new URL("https://api.tokenbalance.com/balance/" + mContractAddress + "/" + mErc20Address);
+
+                    HttpsURLConnection conn = (HttpsURLConnection)ep.openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(5000);
+                    if (200 != conn.getResponseCode()) {
+                        throw new Exception("Failed to request : " + conn.getResponseCode());
+                    }
+
+                    InputStream responseBody = conn.getInputStream();
+
+                    byte[] buf = new byte[4096];
+                    int len = responseBody.read(buf);
+
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    out.write(buf, 0, len);
+
+                    promise.resolve(new String(out.toByteArray(), "UTF-8"));
+                }
+                catch (Exception e) {
+                    promise.reject(e);
+                }
+
+            }
+        });
     }
 
     @ReactMethod
-    public void transfer(final ReadableMap params, final Callback callback) {
+    public void transfer(final ReadableMap params, final Promise promise) {
         if (!mInitialized) {
-            callback.invoke("Not initialized");
+            promise.reject("NOT_INITIALIZED", "NOT_INITIALIZED");
             return;
         }
-
-        final String toAddress = params.getString("toAddress");
-        final Integer amount = params.getInt("amount");
-        final Integer gasLimit = params.getInt("gasLimit");
-
-        final String hdPath = "m/44'/60'/0'/0/0";
-
-        final BigInteger gasPrice = Convert.toWei(mTokenDecimal.toString(), Convert.Unit.GWEI).toBigInteger();
-
-        final byte[] encodedUnsignedEthTx = EthUtils.createRawTransaction(
-                mWeb3,
-                mContractAddress,
-                mErc20Address,
-                toAddress,
-                BigInteger.valueOf(amount),
-                gasPrice,
-                BigInteger.valueOf(gasLimit)
-        );
 
         ScwService.ScwSignEthTransactionCallback cb =
                 new ScwService.ScwSignEthTransactionCallback() {
@@ -209,23 +224,48 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                             EthSendTransaction t = mWeb3.ethSendRawTransaction(hex).sendAsync().get();
                             if (null != t.getError()) {
                                 Log.e(LOG_ID, "EthSendTransaction Err : " +  t.getError().getMessage());
-                                callback.invoke("Failed to transfer : " + t.getError().getCode());
+                                promise.reject("ERR_TRANSFER", "Failed to transfer : " + t.getError().getCode());
                                 return;
                             }
 
-                            callback.invoke(null, t.getResult());
+                            promise.resolve(t.getResult());
                         }
                         catch (Exception e) {
-                            callback.invoke(e.toString());
+                            Log.e(LOG_ID, "EthSendTransaction Err : " +  e.toString());
+                            promise.reject("ERR_TRANSFER", e.toString());
                         }
                     }
 
                     @Override
                     public void onFailure(int errorCode) {
-                        callback.invoke("Failed to transfer : " + errorCode);
+                        Log.e(LOG_ID, "EthSendTransaction Err : " +  Integer.valueOf(errorCode).toString());
+                        promise.reject("ERR_TRANSFER", Integer.valueOf(errorCode).toString());
                     }
                 };
 
-        ScwService.getInstance().signEthTransaction(cb, encodedUnsignedEthTx, hdPath);
+        try {
+            final String toAddress = params.getString("toAddress");
+            final Integer amount = params.getInt("amount");
+            final Integer gasLimit = 100000;
+            final Integer gasPriceRaw = EthUtils.getGasPrice();
+            Log.d(LOG_ID, "gasPriceRaw : " + gasPriceRaw);
+            final BigInteger gasPrice = Convert.toWei(gasPriceRaw.toString(), Convert.Unit.GWEI).toBigInteger();
+
+            final byte[] encodedUnsignedEthTx = EthUtils.createRawTransaction(
+                    mWeb3,
+                    mContractAddress,
+                    mErc20Address,
+                    toAddress,
+                    BigInteger.valueOf(amount),
+                    gasPrice,
+                    BigInteger.valueOf(gasLimit)
+            );
+
+            final String hdPath = "m/44'/60'/0'/0/0";
+            ScwService.getInstance().signEthTransaction(cb, encodedUnsignedEthTx, hdPath);
+        }
+        catch (Exception e) {
+            promise.reject(e);
+        }
     }
 }
