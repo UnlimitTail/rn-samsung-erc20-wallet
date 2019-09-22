@@ -2,22 +2,30 @@
   "name": "rn-samsung-erc20-wallet",
   "title": "Rn Samsung Erc20 Wallet",
   "version": "1.1.0",
-  "description": "TODO",
+  "description": "the erc20 wallet module for samsung keystore",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github_account/rn-samsung-erc20-wallet.git",
-    "baseUrl": "https://github.com/github_account/rn-samsung-erc20-wallet"
+    "url": "git+https://github.com/yangga/rn-samsung-erc20-wallet.git",
+    "baseUrl": "https://github.com/yangga/rn-samsung-erc20-wallet"
   },
   "keywords": [
-    "react-native"
+    "react-native",
+    "samsung",
+    "keystore",
+    "erc20",
+    "ethereum",
+    "blockchain",
+    "wallet",
+    "crypto",
+    "currency"
   ],
   "author": {
-    "name": "Your Name",
-    "email": "yourname@email.com"
+    "name": "yangga",
+    "email": "yangga0070@gmail.com"
   },
   "license": "MIT",
   "licenseFilename": "LICENSE",

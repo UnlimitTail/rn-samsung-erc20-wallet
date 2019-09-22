@@ -49,10 +49,6 @@ repositories {
         url "$projectDir/../node_modules/react-native/android"
     }
     mavenCentral()
-
-    flatDir{
-        dirs 'libs-samsung-sdk'
-    }
 }
 
 dependencies {
