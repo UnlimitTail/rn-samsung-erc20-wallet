@@ -216,7 +216,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                             callback.invoke(null, t.getResult());
                         }
                         catch (Exception e) {
-                            callback.invoke(e);
+                            callback.invoke(e.toString());
                         }
                     }
 
