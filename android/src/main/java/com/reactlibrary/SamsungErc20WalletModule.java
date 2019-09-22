@@ -93,7 +93,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
 
         ScwService scw = ScwService.getInstance();
         if (null == scw) {
-            callback.invoke(new Exception("Samsung keystore not supported this device"));
+            callback.invoke("Samsung keystore not supported this device");
             return;
         }
 
@@ -106,7 +106,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                 null == mChainnetUrl ||
                 null == mTokenDecimal
         ) {
-            callback.invoke(new Exception("Invalid parameters"));
+            callback.invoke("Invalid parameters");
             return;
         }
 
@@ -121,7 +121,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                 public void onSuccess(List<String> addressList) {
 
                     if (addressList.isEmpty()) {
-                        callback.invoke(new Exception("Empty erc20 wallet"));
+                        callback.invoke("Empty erc20 wallet");
                         return;
                     }
 
@@ -134,7 +134,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
 
                 @Override
                 public void onFailure(int errorCode) {
-                    callback.invoke(new Exception("Failed to init : " + errorCode));
+                    callback.invoke("Failed to init : " + errorCode);
                 }
             };
 
@@ -157,7 +157,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getAddress(final Callback callback) {
         if (!mInitialized) {
-            callback.invoke(new Exception("Not initialized"));
+            callback.invoke("Not initialized");
             return;
         }
 
@@ -167,7 +167,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getBalance(final Callback callback) {
         if (!mInitialized) {
-            callback.invoke(new Exception("Not initialized"));
+            callback.invoke("Not initialized");
             return;
         }
 
@@ -177,7 +177,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void transfer(final ReadableMap params, final Callback callback) {
         if (!mInitialized) {
-            callback.invoke(new Exception("Not initialized"));
+            callback.invoke("Not initialized");
             return;
         }
 
@@ -209,7 +209,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                             EthSendTransaction t = mWeb3.ethSendRawTransaction(hex).sendAsync().get();
                             if (null != t.getError()) {
                                 Log.e(LOG_ID, "EthSendTransaction Err : " +  t.getError().getMessage());
-                                callback.invoke(new Exception("Failed to transfer : " + t.getError().getCode()));
+                                callback.invoke("Failed to transfer : " + t.getError().getCode());
                                 return;
                             }
 
@@ -222,7 +222,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
 
                     @Override
                     public void onFailure(int errorCode) {
-                        callback.invoke(new Exception("Failed to transfer : " + errorCode));
+                        callback.invoke("Failed to transfer : " + errorCode);
                     }
                 };
 
