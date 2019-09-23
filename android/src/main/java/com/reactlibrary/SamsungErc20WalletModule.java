@@ -71,6 +71,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
     private int[] mSupportedCoinTypes = null;
     private String mErc20Address = null;
     private String mContractAddress = null;
+    private Integer mTokenDecimal = null;
     private String mChainnetUrl = null;
     private Web3j mWeb3 = null;
 
@@ -101,10 +102,12 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
 
         mContractAddress = params.getString("contractAddress");
         mChainnetUrl = params.getString("chainnetUrl");
+        mTokenDecimal = params.getInt("tokenDecimal");
 
         if (
                 null == mContractAddress ||
-                null == mChainnetUrl
+                null == mChainnetUrl ||
+                !params.hasKey("tokenDecimal")
         ) {
             promise.reject("INVALID_PARAMETERS", "Invalid parameters");
             return;
@@ -246,7 +249,13 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
         try {
             final String toAddress = params.getString("toAddress");
             final Integer amount = params.getInt("amount");
-            final Integer gasLimit = 100000;
+            final Integer gasLimit = 0 < params.getInt("gasLimit") ? params.getInt("gasLimit") : 100000;
+
+            if (null == toAddress ||
+                0 == amount) {
+                throw new Exception("Invalid Parameters");
+            }
+
             final Integer gasPriceRaw = EthUtils.getGasPrice();
             Log.d(LOG_ID, "gasPriceRaw : " + gasPriceRaw);
             final BigInteger gasPrice = Convert.toWei(gasPriceRaw.toString(), Convert.Unit.GWEI).toBigInteger();
@@ -256,7 +265,7 @@ public class SamsungErc20WalletModule extends ReactContextBaseJavaModule {
                     mContractAddress,
                     mErc20Address,
                     toAddress,
-                    BigInteger.valueOf(amount),
+                    BigInteger.valueOf(amount * (int)Math.pow(10, mTokenDecimal)),
                     gasPrice,
                     BigInteger.valueOf(gasLimit)
             );

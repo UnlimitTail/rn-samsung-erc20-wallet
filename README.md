@@ -47,8 +47,9 @@ import SamsungErc20Wallet from 'rn-samsung-erc20-wallet';
 // initializing
 try {
 	await SW.init({
-		contractAddress: '0xA158241357872A52B3130E02C24B1359FE2F....',
-		chainnetUrl: 'https://mainnet.infura.io/v3/....',
+		contractAddress: '0xA158241357872A52B3130E02C24B1359FE2F430b',
+		chainnetUrl: 'https://mainnet.infura.io/v3/b3f8d3a0daac48959d9512760006f822',
+		tokenDecimal: 5,
 	})
 
 	console.log('success to initialize')
@@ -88,7 +89,8 @@ catch (e) {
 try {
 	const param = {
 		toAddress: '0x007a4fad964225B94eA41f64Ca08a97248d64920',
-		amount: 10
+		amount: 10,
+		gasLimit: 72000,
 	}
 
 	const transaction = await SW.transfer(param)
