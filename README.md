@@ -1,5 +1,7 @@
 # rn-samsung-erc20-wallet
 
+samsung wallet for ERC20 token on react native
+
 <b>## It supports only Android ##</b>
 
 ## Getting started
