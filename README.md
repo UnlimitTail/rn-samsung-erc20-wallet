@@ -12,7 +12,7 @@ then, you need to install samsung keystore sdk
 cp -r node_modules/rn-samsung-erc20-wallet/android/libs-samsung-sdk android/libs-samsung-sdk
 cp -r node_modules/rn-samsung-erc20-wallet/android/libs-samsung-sdk android/app/libs-samsung-sdk
 ```
-I don't the exact reason why but you need to copy it at both.
+I don't know the exact reason why but you need to copy it at both.
 
 ### Mostly automatic installation
 
