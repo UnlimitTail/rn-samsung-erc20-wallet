@@ -9,8 +9,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yangga/rn-samsung-erc20-wallet.git",
-    "baseUrl": "https://github.com/yangga/rn-samsung-erc20-wallet"
+    "url": "git+https://github.com/UnlimitTail/rn-samsung-erc20-wallet.git",
+    "baseUrl": "https://github.com/UnlimitTail/rn-samsung-erc20-wallet.git"
   },
   "keywords": [
     "react-native",
@@ -24,8 +24,8 @@
     "currency"
   ],
   "author": {
-    "name": "yangga",
-    "email": "yangga0070@gmail.com"
+    "name": "UnlimitTail",
+    "email": "madtaillab@gmail.com"
   },
   "license": "MIT",
   "licenseFilename": "LICENSE",
