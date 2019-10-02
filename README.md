@@ -87,7 +87,7 @@ catch (e) {
 	console.error(e)
 }
 
-// trasfer
+// transfer
 try {
 	const param = {
 		toAddress: '0x007a4fad964225B94eA41f64Ca08a97248d64920',
